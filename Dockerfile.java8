@@ -1,0 +1,11 @@
+FROM openjdk:8-jre-alpine
+
+RUN apk --no-cache add bash curl && \
+  mkdir -p /var/log/application
+
+WORKDIR /project
+
+COPY ./build/libs/netty-ssl.jar ./app.jar
+COPY ./entrypoint.sh .
+
+ENTRYPOINT ./entrypoint.sh

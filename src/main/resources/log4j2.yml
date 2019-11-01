@@ -1,0 +1,33 @@
+Configuration:
+  status: warn
+  monitorInterval: 60
+  name: stdout
+
+  appenders:
+    Console:
+      - name: stdout_appender
+        target: SYSTEM_OUT
+        PatternLayout:
+          pattern: "%d{ISO8601} level=\"%p\" class=\"%c{1}\" %m%xEx{5}{separator(|)}%n"
+    RollingRandomAccessFile:
+      - name: application_log
+        fileName: '/var/log/application/error.log'
+        filePattern: '/var/log/application/error.%i.log'
+        PatternLayout:
+          pattern: "%d{ISO8601} level=\"%p\" class=\"%c{1}\" %m%xEx{5}{separator(|)}%n"
+        Policies:
+          SizeBasedTriggeringPolicy:
+            size: '5 MB'
+        DefaultRolloverStrategy:
+          max: 1
+
+  Loggers:
+
+    Root:
+      level: info
+      AppenderRef:
+        - ref: stdout_appender
+        - ref: application_log
+    logger:
+        - name: org.apache.zookeeper
+          level: warn

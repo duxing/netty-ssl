@@ -1,0 +1,12 @@
+FROM openjdk:11.0.5-slim-buster
+
+# RUN apt-get update &&\
+#     apt-get install -y openjdk-11-jre
+RUN mkdir -p /var/log/application
+
+WORKDIR /project
+
+COPY ./build/libs/netty-ssl.jar ./app.jar
+COPY ./entrypoint.sh .
+
+ENTRYPOINT ./entrypoint.sh

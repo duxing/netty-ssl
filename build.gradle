@@ -1,0 +1,36 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
+    id 'application'
+    id 'java'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+mainClassName = 'netty.Application'
+
+ext {
+    jacksonVersion = '2.9.8'
+    log4j2Version = '2.11.1'
+    nettyVersion = '4.1.35.Final'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: "${log4j2Version}"
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: "${log4j2Version}"
+
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "${jacksonVersion}"
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "${jacksonVersion}"
+    implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version: "${jacksonVersion}"
+
+    implementation group: 'io.netty', name: 'netty-all', version: "${nettyVersion}"
+}
+
+
+shadowJar {
+    archiveName = 'netty-ssl.jar'
+}
