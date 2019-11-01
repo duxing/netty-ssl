@@ -1,13 +1,11 @@
 package netty;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.*;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +19,14 @@ public class Application {
     }
 
     void run() throws Exception {
-        URI uri = new URI("https://auth-integ-service-dot-cognac-prod.appspot.com/.well-known/jwks.json");
+        URI uri = new URI(System.getenv("URL"));
+        // "https://auth-integ-service-dot-cognac-prod.appspot.com/.well-known/jwks.json"
+
+        boolean cert = true;
+        if ("false".equalsIgnoreCase(System.getenv("CERT"))) {
+            cert = false;
+        }
+
 
         String scheme = uri.getScheme();
         String host = uri.getHost();
@@ -35,17 +40,13 @@ public class Application {
         }
 
         boolean ssl = "https".equalsIgnoreCase(scheme);
-        SslContext sslCtx = null;
-        if (ssl) {
-            sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-        }
 
         EventLoopGroup group= new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
             b.group(group)
                     .channel(NioSocketChannel.class)
-                    .handler(new HttpClientInitializer(sslCtx));
+                    .handler(new HttpClientInitializer(ssl, cert));
 
             LOG.info("method=\"run\" msg=\"\" host={} port={}", host, port);
             Channel ch = b.connect(host, port).sync().channel();
