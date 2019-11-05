@@ -4,10 +4,11 @@ CUR_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 REPO_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 DIR_NAME := $(shell basename $(REPO_DIR))
-SERVICE_NAME := netty-ssl
 IMAGE_TAG ?= latest
 
 JAVA11 ?= false
+CERT ?= true
+URL ?= https://google.com
 
 # todo: maybe consider using mustache to consolidate 2 dockerfiles into 1.
 ifeq ($(JAVA11),true)
@@ -21,7 +22,6 @@ endif
 ifeq ($(CI),true)
 GRADLE := docker run --rm -u root -v $(CUR_DIR):/app -v /var/run/docker.sock:/run/docker.sock -e GRADLE_OPTS=-Dorg.gradle.daemon=false -w /app gradle:$(GRADLE_IMAGE_TAG) gradle
 else
-# todo: xdu. switch this dynamically
 GRADLE := ./gradlew
 endif
 
@@ -31,9 +31,14 @@ build:
 
 .PHONY: docker_build
 docker_build: build
-	docker build -f $(REPO_DIR)/$(DOCKER_FILE) -t $(SERVICE_NAME):$(IMAGE_TAG) $(REPO_DIR)
+	docker build -f $(REPO_DIR)/$(DOCKER_FILE) -t $(DIR_NAME):$(IMAGE_TAG) $(REPO_DIR)
+
+DOCKER_OPTS := -e URL=$(URL) -e CERT=$(CERT)
 
 .PHONY: run
 run: docker_build
-	docker run --rm --init $(SERVICE_NAME):$(IMAGE_TAG)
+	docker run --rm  --init \
+	$(DOCKER_OPTS) \
+	$(DIR_NAME):$(IMAGE_TAG)
+
 
